@@ -299,6 +299,9 @@ class PlayState extends MusicBeatState
 
 	var precacheList:Map<String, String> = new Map<String, String>();
 
+	var strumAlterTween:Array<FlxTween> = [];
+	var strumAlterProcess:Array<Float> = [];
+
 	override public function create()
 	{
 		Paths.clearStoredMemory();
@@ -3058,6 +3061,10 @@ class PlayState extends MusicBeatState
 
 				var strumX:Float = strumGroup.members[daNote.noteData].x;
 				var strumY:Float = strumGroup.members[daNote.noteData].y;
+				var strumScaleX:Float = strumGroup.members[daNote.noteData].scale.x;
+				var strumScaleY:Float = strumGroup.members[daNote.noteData].scale.y;
+				var strumHeight:Float = strumGroup.members[daNote.noteData].height;
+				var strumWidth:Float = strumGroup.members[daNote.noteData].width;
 				var strumAngle:Float = strumGroup.members[daNote.noteData].angle;
 				var strumDirection:Float = strumGroup.members[daNote.noteData].direction;
 				var strumAlpha:Float = strumGroup.members[daNote.noteData].alpha;
@@ -3067,6 +3074,17 @@ class PlayState extends MusicBeatState
 				strumY += daNote.offsetY;
 				strumAngle += daNote.offsetAngle;
 				strumAlpha *= daNote.multAlpha;
+
+				if (!daNote.isSustainNote)
+				{
+					daNote.angle = strumGroup.members[daNote.noteData].angle;
+					daNote.scale.y = strumScaleY;
+					daNote.scale.x = strumScaleX;
+				}
+				daNote.alpha = strumGroup.members[daNote.noteData].alpha;
+				daNote.x = strumGroup.members[daNote.noteData].x + strumWidth/2 - daNote.width/2;
+				if (daNote.animation.curAnim.name.endsWith('end'))
+					daNote.x += daNote.width/3;
 
 				if (strumScroll) //Downscroll
 				{
@@ -3625,6 +3643,560 @@ class PlayState extends MusicBeatState
 					FunkinLua.setVarInArray(FunkinLua.getPropertyLoopThingWhatever(killMe, true, true), killMe[killMe.length-1], value2);
 				} else {
 					FunkinLua.setVarInArray(this, value1, value2);
+				}
+			case 'Alter Strum':
+				var array1:Array<String> = value1.split(',');
+				var changes:Array<String> = value2.split('&')[0].split('___');
+				var strumSpeed:Float = ((value2.contains('&'))? Std.parseFloat(value2.split('&')[1]) * 15/SONG.bpm : 15/SONG.bpm);
+				var strumAlterEase = FlxEase.quadInOut;
+				trace ('ease: ' + value2.split('&')[2]);
+				switch (value2.split('&')[2])
+				{
+					case 'qin':
+						strumAlterEase = FlxEase.quadIn;
+					case 'qout':
+						strumAlterEase = FlxEase.quadOut;
+					case 'qinout':
+						strumAlterEase = FlxEase.quadInOut;
+					case 'bin':
+						strumAlterEase = FlxEase.backIn;
+					case 'bout':
+						strumAlterEase = FlxEase.backOut;
+					case 'binout':
+						strumAlterEase = FlxEase.backInOut;
+					case 'bouin':
+						strumAlterEase = FlxEase.bounceIn;
+					case 'bouout':
+						strumAlterEase = FlxEase.bounceOut;
+					case 'bouinout':
+						strumAlterEase = FlxEase.bounceInOut;
+					case 'linear':
+						strumAlterEase = FlxEase.linear;
+				}
+				var thingstoChange:Array<String> = [];
+				var strum:String;
+				var player:String = '0';
+				var action:String = '0';
+				for (i in 0...array1.length)
+				{
+					strum = array1[i];
+					thingstoChange = changes[i].split(',');
+					for (j in 0...thingstoChange.length)
+					{
+						switch(thingstoChange[j].split('>')[0])
+						{
+							case 'x':
+								action = '1';
+								player = '1';
+								var tweenID:Int = Std.parseInt(player+strum+action);
+								var k:Int = 0;
+								playerStrums.forEach(function(babyArrow:FlxSprite)
+								{
+									if (Std.string(k) == array1[i])
+									{
+										if (strumAlterTween[tweenID] != null)
+										{
+											strumAlterTween[tweenID].cancel();
+											babyArrow.x = strumAlterProcess[tweenID];
+										}
+										strumAlterProcess[tweenID] = babyArrow.x + Std.parseFloat(thingstoChange[j].split('>')[1]);
+										if (strumSpeed != 0)
+											strumAlterTween[tweenID] = FlxTween.tween(babyArrow, {x:strumAlterProcess[tweenID]}, strumSpeed, {ease:strumAlterEase});
+										else
+											babyArrow.x = strumAlterProcess[tweenID];
+									}
+									k++;
+								});
+	
+								k = 0;
+								player = '2';
+								tweenID = Std.parseInt(player+strum+action);
+								opponentStrums.forEach(function(babyArrow:FlxSprite)
+								{
+									if (Std.string(k) == array1[i])
+									{
+										if (strumAlterTween[tweenID] != null)
+										{
+											strumAlterTween[tweenID].cancel();
+											babyArrow.x = strumAlterProcess[tweenID];
+										}
+										strumAlterProcess[tweenID] = babyArrow.x + Std.parseFloat(thingstoChange[j].split('>')[1]);
+										if (strumSpeed != 0)
+											strumAlterTween[tweenID] = FlxTween.tween(babyArrow, {x:strumAlterProcess[tweenID]}, strumSpeed, {ease:strumAlterEase});
+										else
+											babyArrow.x = strumAlterProcess[tweenID];
+									}
+									k++;
+								});
+								
+							case 'y':
+								action = '2';
+								player = '1';
+								var tweenID:Int = Std.parseInt(player+strum+action);
+								var k:Int = 0;
+								playerStrums.forEach(function(babyArrow:FlxSprite)
+								{
+									if (Std.string(k) == array1[i])
+									{
+										if (strumAlterTween[tweenID] != null)
+										{
+											strumAlterTween[tweenID].cancel();
+											babyArrow.y = strumAlterProcess[tweenID];
+										}
+										strumAlterProcess[tweenID] = babyArrow.y + ((!ClientPrefs.downScroll)? Std.parseFloat(thingstoChange[j].split('>')[1]) : -Std.parseFloat(thingstoChange[j].split('>')[1]));
+										if (strumSpeed != 0)
+											strumAlterTween[tweenID] = FlxTween.tween(babyArrow, {y:strumAlterProcess[tweenID]}, strumSpeed, {ease:strumAlterEase});
+										else
+											babyArrow.y = strumAlterProcess[tweenID];
+									}
+									k++;
+								});
+								k = 0;
+								player = '2';
+								tweenID = Std.parseInt(player+strum+action);
+								opponentStrums.forEach(function(babyArrow:FlxSprite)
+								{
+									if (Std.string(k) == array1[i])
+									{
+										if (strumAlterTween[tweenID] != null)
+										{
+											strumAlterTween[tweenID].cancel();
+											babyArrow.y = strumAlterProcess[tweenID];
+										}
+										strumAlterProcess[tweenID] = babyArrow.y + ((!ClientPrefs.downScroll)? Std.parseFloat(thingstoChange[j].split('>')[1]) : -Std.parseFloat(thingstoChange[j].split('>')[1]));
+										if (strumSpeed != 0)
+											strumAlterTween[tweenID] = FlxTween.tween(babyArrow, {y:strumAlterProcess[tweenID]}, strumSpeed, {ease:strumAlterEase});
+										else
+											babyArrow.y = strumAlterProcess[tweenID];
+									}
+									k++;
+								});	
+							case 'angle':
+								action = '3';
+								player = '1';
+								var tweenID:Int = Std.parseInt(player+strum+action);		
+								var k:Int = 0;
+								playerStrums.forEach(function(babyArrow:FlxSprite)
+								{
+									if (Std.string(k) == array1[i])
+									{
+										if (strumAlterTween[tweenID] != null)
+										{
+											strumAlterTween[tweenID].cancel();
+											babyArrow.angle = strumAlterProcess[tweenID];
+										}
+										strumAlterProcess[tweenID] = babyArrow.angle + ((!ClientPrefs.downScroll)? Std.parseFloat(thingstoChange[j].split('>')[1]) : -Std.parseFloat(thingstoChange[j].split('>')[1]));
+										if (strumSpeed != 0)
+											strumAlterTween[tweenID] = FlxTween.tween(babyArrow, {angle:strumAlterProcess[tweenID]}, strumSpeed, {ease:strumAlterEase});
+										else
+											babyArrow.angle = strumAlterProcess[tweenID];
+									}
+									k++;
+								});
+								k = 0;
+								player = '2';
+								tweenID = Std.parseInt(player+strum+action);
+								opponentStrums.forEach(function(babyArrow:FlxSprite)
+								{
+									if (Std.string(k) == array1[i])
+									{
+										if (strumAlterTween[tweenID] != null)
+										{
+											strumAlterTween[tweenID].cancel();
+											babyArrow.angle = strumAlterProcess[tweenID];
+										}
+										strumAlterProcess[tweenID] = babyArrow.angle + ((!ClientPrefs.downScroll)? Std.parseFloat(thingstoChange[j].split('>')[1]) : -Std.parseFloat(thingstoChange[j].split('>')[1]));
+										if (strumSpeed != 0)
+											strumAlterTween[tweenID] = FlxTween.tween(babyArrow, {angle:strumAlterProcess[tweenID]}, strumSpeed, {ease:strumAlterEase});
+										else
+											babyArrow.angle = strumAlterProcess[tweenID];
+									}
+									k++;
+								});
+								
+							case 'alpha':
+								action = '4';
+								player = '1';
+								var tweenID:Int = Std.parseInt(player+strum+action);
+								var k:Int = 0;
+								playerStrums.forEach(function(babyArrow:FlxSprite)
+								{
+									if (Std.string(k) == array1[i])
+									{
+										if (strumAlterTween[tweenID] != null)
+										{
+											strumAlterTween[tweenID].cancel();
+											babyArrow.alpha = strumAlterProcess[tweenID];
+										}
+										strumAlterProcess[tweenID] = Std.parseFloat(thingstoChange[j].split('>')[1]);
+										if (strumSpeed != 0)
+											strumAlterTween[tweenID] = FlxTween.tween(babyArrow, {alpha:strumAlterProcess[tweenID]}, strumSpeed, {ease:strumAlterEase});
+										else
+											babyArrow.alpha = strumAlterProcess[tweenID];
+									}
+									k++;
+								});
+								k = 0;
+								player = '2';
+								tweenID = Std.parseInt(player+strum+action);
+								opponentStrums.forEach(function(babyArrow:FlxSprite)
+								{
+									if (Std.string(k) == array1[i])
+									{
+										if (strumAlterTween[tweenID] != null)
+										{
+											strumAlterTween[tweenID].cancel();
+											babyArrow.alpha = strumAlterProcess[tweenID];
+										}
+										strumAlterProcess[tweenID] = Std.parseFloat(thingstoChange[j].split('>')[1]);
+										if (strumSpeed != 0)
+											strumAlterTween[tweenID] = FlxTween.tween(babyArrow, {alpha:strumAlterProcess[tweenID]}, strumSpeed, {ease:strumAlterEase});
+										else
+											babyArrow.alpha = strumAlterProcess[tweenID];
+									}
+									k++;
+								});
+							case 'scale':
+								action = '5';
+								player = '1';
+								var tweenID:Int = Std.parseInt(player+strum+action);
+								var k:Int = 0;
+								playerStrums.forEach(function(babyArrow:FlxSprite)
+								{
+									if (Std.string(k) == array1[i])
+									{
+										if (strumAlterTween[tweenID] != null)
+										{
+											strumAlterTween[tweenID].cancel();
+											babyArrow.scale.x = babyArrow.scale.y = strumAlterProcess[tweenID];
+										}
+										strumAlterProcess[tweenID] = Std.parseFloat(thingstoChange[j].split('>')[1]);
+										if (strumSpeed != 0)
+											strumAlterTween[tweenID] = FlxTween.tween(babyArrow.scale, {x:strumAlterProcess[tweenID], y:strumAlterProcess[tweenID]}, strumSpeed, {ease:strumAlterEase});
+										else
+											babyArrow.scale.x = babyArrow.scale.y = strumAlterProcess[tweenID];
+									}
+									k++;
+								});
+								k = 0;
+								player = '2';
+								tweenID = Std.parseInt(player+strum+action);
+								opponentStrums.forEach(function(babyArrow:FlxSprite)
+								{
+									if (Std.string(k) == array1[i])
+									{
+										if (strumAlterTween[tweenID] != null)
+										{
+											strumAlterTween[tweenID].cancel();
+											babyArrow.scale.x = babyArrow.scale.y = strumAlterProcess[tweenID];
+										}
+										strumAlterProcess[tweenID] = Std.parseFloat(thingstoChange[j].split('>')[1]);
+										if (strumSpeed != 0)
+											strumAlterTween[tweenID] = FlxTween.tween(babyArrow.scale, {x:strumAlterProcess[tweenID], y:strumAlterProcess[tweenID]}, strumSpeed, {ease:strumAlterEase});
+										else
+											babyArrow.scale.x = babyArrow.scale.y = strumAlterProcess[tweenID];
+									}
+									k++;
+								});
+							
+						}
+					}
+				}
+			case 'Alter Player Strum':
+				var array1:Array<String> = value1.split(',');
+				var changes:Array<String> = value2.split('&')[0].split('___');
+				var strumSpeed:Float = ((value2.contains('&'))? Std.parseFloat(value2.split('&')[1]) * 15/SONG.bpm : 15/SONG.bpm);
+				var strumAlterEase = FlxEase.quadInOut;
+				switch (value2.split('&')[2])
+				{
+					case 'qin':
+						strumAlterEase = FlxEase.quadIn;
+					case 'qout':
+						strumAlterEase = FlxEase.quadOut;
+					case 'qinout':
+						strumAlterEase = FlxEase.quadInOut;
+					case 'bin':
+						strumAlterEase = FlxEase.backIn;
+					case 'bout':
+						strumAlterEase = FlxEase.backOut;
+					case 'binout':
+						strumAlterEase = FlxEase.backInOut;
+					case 'bouin':
+						strumAlterEase = FlxEase.bounceIn;
+					case 'bouout':
+						strumAlterEase = FlxEase.bounceOut;
+					case 'bouinout':
+						strumAlterEase = FlxEase.bounceInOut;
+					case 'linear':
+						strumAlterEase = FlxEase.linear;
+				}
+				var thingstoChange:Array<String> = [];
+				var strum:String;
+				var player:String = '1';
+				var action:String = '0';
+				for (i in 0...array1.length)
+				{
+					strum = array1[i];
+					thingstoChange = changes[i].split(',');
+					for (j in 0...thingstoChange.length)
+					{
+						switch(thingstoChange[j].split('>')[0])
+						{
+							case 'x':
+								action = '1';
+								var tweenID:Int = Std.parseInt(player+strum+action);
+								var k:Int = 0;
+								playerStrums.forEach(function(babyArrow:FlxSprite)
+								{
+									if (Std.string(k) == array1[i])
+									{
+										if (strumAlterTween[tweenID] != null)
+											{
+												strumAlterTween[tweenID].cancel();
+												babyArrow.alpha = strumAlterProcess[tweenID];
+											}
+											strumAlterProcess[tweenID] = Std.parseFloat(thingstoChange[j].split('>')[1]);
+											if (strumSpeed != 0)
+												strumAlterTween[tweenID] = FlxTween.tween(babyArrow, {alpha:strumAlterProcess[tweenID]}, strumSpeed, {ease:strumAlterEase});
+											else
+												babyArrow.alpha = strumAlterProcess[tweenID];
+									}
+									k++;
+								});
+							case 'y':
+								action = '2';
+								var tweenID:Int = Std.parseInt(player+strum+action);
+								var k:Int = 0;
+								playerStrums.forEach(function(babyArrow:FlxSprite)
+								{
+									if (Std.string(k) == array1[i])
+									{
+										if (strumAlterTween[tweenID] != null)
+										{
+											strumAlterTween[tweenID].cancel();
+											babyArrow.y = strumAlterProcess[tweenID];
+										}
+										strumAlterProcess[tweenID] = babyArrow.y + ((!ClientPrefs.downScroll)? Std.parseFloat(thingstoChange[j].split('>')[1]) : -Std.parseFloat(thingstoChange[j].split('>')[1]));
+										if (strumSpeed != 0)
+											strumAlterTween[tweenID] = FlxTween.tween(babyArrow, {y:strumAlterProcess[tweenID]}, strumSpeed, {ease:strumAlterEase});
+										else
+											babyArrow.y = strumAlterProcess[tweenID];
+									}
+									k++;
+								});
+							case 'angle':
+								action = '3';
+								var tweenID:Int = Std.parseInt(player+strum+action);
+								var k:Int = 0;
+								playerStrums.forEach(function(babyArrow:FlxSprite)
+								{
+									if (Std.string(k) == array1[i])
+									{
+										if (strumAlterTween[tweenID] != null)
+										{
+											strumAlterTween[tweenID].cancel();
+											babyArrow.angle = strumAlterProcess[tweenID];
+										}
+										strumAlterProcess[tweenID] = babyArrow.angle + ((!ClientPrefs.downScroll)? Std.parseFloat(thingstoChange[j].split('>')[1]) : -Std.parseFloat(thingstoChange[j].split('>')[1]));
+										if (strumSpeed != 0)
+											strumAlterTween[tweenID] = FlxTween.tween(babyArrow, {angle:strumAlterProcess[tweenID]}, strumSpeed, {ease:strumAlterEase});
+										else
+											babyArrow.angle = strumAlterProcess[tweenID];
+									}
+									k++;
+								});
+							case 'alpha':
+								action = '4';
+								var tweenID:Int = Std.parseInt(player+strum+action);
+								var k:Int = 0;
+								playerStrums.forEach(function(babyArrow:FlxSprite)
+								{
+									if (Std.string(k) == array1[i])
+									{
+										if (strumAlterTween[tweenID] != null)
+										{
+											strumAlterTween[tweenID].cancel();
+											babyArrow.alpha = strumAlterProcess[tweenID];
+										}
+										strumAlterProcess[tweenID] = Std.parseFloat(thingstoChange[j].split('>')[1]);
+										if (strumSpeed != 0)
+											strumAlterTween[tweenID] = FlxTween.tween(babyArrow, {alpha:strumAlterProcess[tweenID]}, strumSpeed, {ease:strumAlterEase});
+										else
+											babyArrow.alpha = strumAlterProcess[tweenID];
+									}
+									k++;
+								});
+							case 'scale':
+								action = '5';
+								var tweenID:Int = Std.parseInt(player+strum+action);
+								var k:Int = 0;
+								playerStrums.forEach(function(babyArrow:FlxSprite)
+								{
+									if (Std.string(k) == array1[i])
+									{
+										if (strumAlterTween[tweenID] != null)
+										{
+											strumAlterTween[tweenID].cancel();
+											babyArrow.scale.x = babyArrow.scale.y = strumAlterProcess[tweenID];
+										}
+										strumAlterProcess[tweenID] = Std.parseFloat(thingstoChange[j].split('>')[1]);
+										if (strumSpeed != 0)
+											strumAlterTween[tweenID] = FlxTween.tween(babyArrow.scale, {x:strumAlterProcess[tweenID], y:strumAlterProcess[tweenID]}, strumSpeed, {ease:strumAlterEase});
+										else
+											babyArrow.scale.x = babyArrow.scale.y = strumAlterProcess[tweenID];
+									}
+									k++;
+								});
+						}
+					}
+				}
+			case 'Alter Enemy Strum':
+				var array1:Array<String> = value1.split(',');
+				var changes:Array<String> = value2.split('&')[0].split('___');
+				var strumSpeed:Float = ((value2.contains('&'))? Std.parseFloat(value2.split('&')[1]) * 15/SONG.bpm : 15/SONG.bpm);
+				var strumAlterEase = FlxEase.quadInOut;
+				switch (value2.split('&')[2])
+				{
+					case 'qin':
+						strumAlterEase = FlxEase.quadIn;
+					case 'qout':
+						strumAlterEase = FlxEase.quadOut;
+					case 'qinout':
+						strumAlterEase = FlxEase.quadInOut;
+					case 'bin':
+						strumAlterEase = FlxEase.backIn;
+					case 'bout':
+						strumAlterEase = FlxEase.backOut;
+					case 'binout':
+						strumAlterEase = FlxEase.backInOut;
+					case 'bouin':
+						strumAlterEase = FlxEase.bounceIn;
+					case 'bouout':
+						strumAlterEase = FlxEase.bounceOut;
+					case 'bouinout':
+						strumAlterEase = FlxEase.bounceInOut;
+					case 'linear':
+						strumAlterEase = FlxEase.linear;
+				}
+				var thingstoChange:Array<String> = [];
+				var strum:String;
+				var player:String = '2';
+				var action:String = '0';
+				for (i in 0...array1.length)
+				{
+					strum = array1[i];
+					thingstoChange = changes[i].split(',');
+					for (j in 0...thingstoChange.length)
+					{
+						switch(thingstoChange[j].split('>')[0])
+						{
+							case 'x':
+								action = '1';
+								var tweenID:Int = Std.parseInt(player+strum+action);
+								var k:Int = 0;
+								opponentStrums.forEach(function(babyArrow:FlxSprite)
+								{
+									if (Std.string(k) == array1[i])
+									{
+										if (strumAlterTween[tweenID] != null)
+										{
+											strumAlterTween[tweenID].cancel();
+											babyArrow.alpha = strumAlterProcess[tweenID];
+										}
+										strumAlterProcess[tweenID] = Std.parseFloat(thingstoChange[j].split('>')[1]);
+										if (strumSpeed != 0)
+											strumAlterTween[tweenID] = FlxTween.tween(babyArrow, {alpha:strumAlterProcess[tweenID]}, strumSpeed, {ease:strumAlterEase});
+										else
+											babyArrow.alpha = strumAlterProcess[tweenID];
+									}
+									k++;
+								});
+							case 'y':
+								action = '2';
+								var tweenID:Int = Std.parseInt(player+strum+action);
+								var k:Int = 0;
+								opponentStrums.forEach(function(babyArrow:FlxSprite)
+								{
+									if (Std.string(k) == array1[i])
+									{
+										if (strumAlterTween[tweenID] != null)
+										{
+											strumAlterTween[tweenID].cancel();
+											babyArrow.y = strumAlterProcess[tweenID];
+										}
+										strumAlterProcess[tweenID] = babyArrow.y + ((!ClientPrefs.downScroll)? Std.parseFloat(thingstoChange[j].split('>')[1]) : -Std.parseFloat(thingstoChange[j].split('>')[1]));
+										if (strumSpeed != 0)
+											strumAlterTween[tweenID] = FlxTween.tween(babyArrow, {y:strumAlterProcess[tweenID]}, strumSpeed, {ease:strumAlterEase});
+										else
+											babyArrow.y = strumAlterProcess[tweenID];
+									}
+									k++;
+								});
+							case 'angle':
+								action = '3';
+								var tweenID:Int = Std.parseInt(player+strum+action);
+								var k:Int = 0;
+								opponentStrums.forEach(function(babyArrow:FlxSprite)
+								{
+									if (Std.string(k) == array1[i])
+									{
+										if (strumAlterTween[tweenID] != null)
+										{
+											strumAlterTween[tweenID].cancel();
+											babyArrow.angle = strumAlterProcess[tweenID];
+										}
+										strumAlterProcess[tweenID] = babyArrow.angle + ((!ClientPrefs.downScroll)? Std.parseFloat(thingstoChange[j].split('>')[1]) : -Std.parseFloat(thingstoChange[j].split('>')[1]));
+										if (strumSpeed != 0)
+											strumAlterTween[tweenID] = FlxTween.tween(babyArrow, {angle:strumAlterProcess[tweenID]}, strumSpeed, {ease:strumAlterEase});
+										else
+											babyArrow.angle = strumAlterProcess[tweenID];
+									}
+									k++;
+								});
+							case 'alpha':
+								action = '4';
+								var tweenID:Int = Std.parseInt(player+strum+action);
+								var k:Int = 0;
+								opponentStrums.forEach(function(babyArrow:FlxSprite)
+								{
+									if (Std.string(k) == array1[i])
+									{
+										if (strumAlterTween[tweenID] != null)
+										{
+											strumAlterTween[tweenID].cancel();
+											babyArrow.alpha = strumAlterProcess[tweenID];
+										}
+										strumAlterProcess[tweenID] = Std.parseFloat(thingstoChange[j].split('>')[1]);
+										if (strumSpeed != 0)
+											strumAlterTween[tweenID] = FlxTween.tween(babyArrow, {alpha:strumAlterProcess[tweenID]}, strumSpeed, {ease:strumAlterEase});
+										else
+											babyArrow.alpha = strumAlterProcess[tweenID];
+									}
+									k++;
+								});
+							case 'scale':
+								action = '5';
+								var tweenID:Int = Std.parseInt(player+strum+action);
+								var k:Int = 0;
+								opponentStrums.forEach(function(babyArrow:FlxSprite)
+								{
+									if (Std.string(k) == array1[i])
+									{
+										if (strumAlterTween[tweenID] != null)
+										{
+											strumAlterTween[tweenID].cancel();
+											babyArrow.scale.x = babyArrow.scale.y = strumAlterProcess[tweenID];
+										}
+										strumAlterProcess[tweenID] = Std.parseFloat(thingstoChange[j].split('>')[1]);
+										if (strumSpeed != 0)
+											strumAlterTween[tweenID] = FlxTween.tween(babyArrow.scale, {x:strumAlterProcess[tweenID], y:strumAlterProcess[tweenID]}, strumSpeed, {ease:strumAlterEase});
+										else
+											babyArrow.scale.x = babyArrow.scale.y = strumAlterProcess[tweenID];
+									}
+									k++;
+								});
+						}
+					}
 				}
 		}
 		callOnLuas('onEvent', [eventName, value1, value2]);
