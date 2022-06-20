@@ -3646,7 +3646,7 @@ class PlayState extends MusicBeatState
 				}
 			case 'Alter Strum':
 				var array1:Array<String> = value1.split(',');
-				var changes:Array<String> = value2.split('&')[0].split('___');
+				var changes:Array<String> = value2.split('&')[0].split('_');
 				var strumSpeed:Float = ((value2.contains('&'))? Std.parseFloat(value2.split('&')[1]) * 15/SONG.bpm : 15/SONG.bpm);
 				var strumAlterEase = FlxEase.quadInOut;
 				trace ('ease: ' + value2.split('&')[2]);
@@ -3904,7 +3904,7 @@ class PlayState extends MusicBeatState
 				}
 			case 'Alter Player Strum':
 				var array1:Array<String> = value1.split(',');
-				var changes:Array<String> = value2.split('&')[0].split('___');
+				var changes:Array<String> = value2.split('&')[0].split('_');
 				var strumSpeed:Float = ((value2.contains('&'))? Std.parseFloat(value2.split('&')[1]) * 15/SONG.bpm : 15/SONG.bpm);
 				var strumAlterEase = FlxEase.quadInOut;
 				switch (value2.split('&')[2])
@@ -4052,7 +4052,7 @@ class PlayState extends MusicBeatState
 				}
 			case 'Alter Enemy Strum':
 				var array1:Array<String> = value1.split(',');
-				var changes:Array<String> = value2.split('&')[0].split('___');
+				var changes:Array<String> = value2.split('&')[0].split('_');
 				var strumSpeed:Float = ((value2.contains('&'))? Std.parseFloat(value2.split('&')[1]) * 15/SONG.bpm : 15/SONG.bpm);
 				var strumAlterEase = FlxEase.quadInOut;
 				switch (value2.split('&')[2])

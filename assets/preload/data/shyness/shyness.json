@@ -26604,7 +26604,7 @@
 				"mustHitSection": true
 			}
 		],
-		"player2": "dad",
+		"player2": "nico",
 		"player3": "gf",
 		"eventObjects": [
 			{
@@ -26615,7 +26615,7 @@
 			}
 		],
 		"chartVersion": "2",
-		"song": "Fresh",
+		"song": "Shyness",
 		"validScore": true,
 		"stage": "stage",
 		"needsVoices": true,

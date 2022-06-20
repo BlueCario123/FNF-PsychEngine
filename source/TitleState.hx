@@ -270,10 +270,15 @@ class TitleState extends MusicBeatState
 		logoBl = new FlxSprite(titleJSON.titlex, titleJSON.titley);
 		logoBl.frames = Paths.getSparrowAtlas('logoBumpin');
 
+		logoBl.setGraphicSize(Std.int(logoBl.width/2));
+
 		logoBl.antialiasing = ClientPrefs.globalAntialiasing;
 		logoBl.animation.addByPrefix('bump', 'logo bumpin', 24, false);
 		logoBl.animation.play('bump');
 		logoBl.updateHitbox();
+
+		logoBl.y += logoBl.height/4;
+		logoBl.x += logoBl.width/4;
 		// logoBl.screenCenter();
 		// logoBl.color = FlxColor.BLACK;
 

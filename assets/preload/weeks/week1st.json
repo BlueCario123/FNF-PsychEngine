@@ -1,8 +1,8 @@
 {
 	"songs": [
-		["Shyness", "dad", [146, 113, 253]],
-		["Determined", "dad", [146, 113, 253]],
-		["Open Your Eyes", "dad", [146, 113, 253]]
+		["Shyness", "nico", [146, 113, 253]],
+		["Determined", "nico", [146, 113, 253]],
+		["Open Your Eyes", "nico", [146, 113, 253]]
 	],
 
 	"weekCharacters": [
@@ -10,7 +10,7 @@
 		"bf",
 		"gf"
 	],
-	"weekBackground": "stage",
+	"weekBackground": "week1st",
 
 	"storyName": "First Week or smth",
 	"weekBefore": "week1st",
