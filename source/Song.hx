@@ -23,12 +23,16 @@ typedef SwagSong =
 
 	var player1:String;
 	var player2:String;
+	var players1:Array<String>;
+	var players2:Array<String>;
 	var gfVersion:String;
 	var stage:String;
 
 	var arrowSkin:String;
 	var splashSkin:String;
 	var validScore:Bool;
+
+	var version:Null<Float>;
 }
 
 class Song
