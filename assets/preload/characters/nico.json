@@ -1,66 +1,66 @@
 {
 	"animations": [
 		{
-			"loop": false,
 			"offsets": [
 				-2,
 				0
 			],
-			"anim": "idle",
+			"loop": false,
 			"fps": 24,
-			"name": "Nico_Idle",
-			"indices": []
+			"anim": "idle",
+			"indices": [],
+			"name": "Nico_Idle"
 		},
 		{
-			"loop": false,
 			"offsets": [
 				-3,
 				1
 			],
-			"anim": "singLEFT",
+			"loop": false,
 			"fps": 24,
-			"name": "Nico_Left",
-			"indices": []
+			"anim": "singLEFT",
+			"indices": [],
+			"name": "Nico_Left"
 		},
 		{
-			"loop": false,
 			"offsets": [
 				60,
 				0
 			],
-			"anim": "singRIGHT",
+			"loop": false,
 			"fps": 24,
-			"name": "Nico_Right",
-			"indices": []
+			"anim": "singRIGHT",
+			"indices": [],
+			"name": "Nico_Right"
 		},
 		{
-			"loop": false,
 			"offsets": [
 				73,
 				-8
 			],
-			"anim": "singDOWN",
+			"loop": false,
 			"fps": 24,
-			"name": "Nico_Down",
-			"indices": []
+			"anim": "singDOWN",
+			"indices": [],
+			"name": "Nico_Down"
 		},
 		{
-			"loop": false,
 			"offsets": [
 				0,
 				-5
 			],
-			"anim": "singUP",
+			"loop": false,
 			"fps": 24,
-			"name": "Nico_Up",
-			"indices": []
+			"anim": "singUP",
+			"indices": [],
+			"name": "Nico_Up"
 		}
 	],
 	"no_antialiasing": false,
 	"image": "characters/Nico_smooth",
 	"position": [
 		0,
-		0
+		30
 	],
 	"healthicon": "nico",
 	"flip_x": false,

@@ -423,6 +423,8 @@ class PlayState extends MusicBeatState
 					curStage = 'schoolEvil';
 				case 'ugh' | 'guns' | 'stress':
 					curStage = 'tank';
+				case 'shyness' | 'determined' | 'open-your-eyes':
+					curStage = 'park';
 				default:
 					curStage = 'stage';
 			}
@@ -799,6 +801,16 @@ class PlayState extends MusicBeatState
 				if(!ClientPrefs.lowQuality) foregroundSprites.add(new BGSprite('tank4', 1300, 900, 1.5, 1.5, ['fg']));
 				foregroundSprites.add(new BGSprite('tank5', 1620, 700, 1.5, 1.5, ['fg']));
 				if(!ClientPrefs.lowQuality) foregroundSprites.add(new BGSprite('tank3', 1300, 1200, 3.5, 2.5, ['fg']));
+
+			case 'park': //Week 1st
+				var bg:BGSprite = new BGSprite('park');
+				add(bg);
+				bg.setGraphicSize(Std.int(bg.width*1.5));
+				bg.updateHitbox();
+				bg.antialiasing = ClientPrefs.globalAntialiasing;
+				bg.screenCenter();
+				bg.y += bg.height/16;
+			
 		}
 
 		switch(Paths.formatToSongPath(SONG.song))
